@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio da Jana</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f8; margin: 0; padding-bottom: 250px; }
+        h1 { background: #25D366; color: white; padding: 20px; margin: 0; text-align: center; }
+        
+        #info-mesa { text-align: center; padding: 10px; color: #444; background: #e8fdf0; font-size: 1.1rem; border-bottom: 1px solid #ddd; }
+
+        .categorias { display: flex; gap: 10px; padding: 10px; background: white; position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
+        .categorias button { background: #eee; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        .container { padding: 15px; }
+        .produto { background: white; margin-bottom: 15px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid transparent; }
+        .produto.selecionado { border-color: #25D366; background: #e8fdf0; }
+        .produto img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; }
+        
+        .obs { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; box-sizing: border-box; }
+        .btn-selecionar { background: #25D366; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        
+        /* BARRA DE AVISO DO ITEM PENDENTE */
+        #area-confirmacao { display: none; background: #fff3cd; padding: 15px; position: sticky; top: 60px; z-index: 998; border-bottom: 2px solid #ffeeba; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-confirmar-final { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-left: 10px; }
+        .btn-ir-extras { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        #extras label { display: block; background: white; padding: 15px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #ddd; font-size: 18px; }
+
+        #carrinho { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 2px solid #ddd; z-index: 999; box-sizing: border-box; }
+        #lista { max-height: 80px; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        #finalizar { background: #128C7E; color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<h1>🍔 Lanchonete da Jana</h1>
+<div id="info-mesa"></div>
+
+<div class="categorias">
+    <button onclick="mostrar('lanches')">🍔 Lanches</button>
+    <button onclick="mostrar('bebidas')">🥤 Bebidas</button>
+    <button onclick="mostrar('extras')">➕ Adicionais</button>
+</div>
+
+<!-- AVISO DE ITEM SELECIONADO -->
+<div id="area-confirmacao">
+    <span id="txt-pendente">Item selecionado!</span><br><br>
+    <button class="btn-ir-extras" onclick="mostrar('extras')">✨ ADICIONAR EXTRAS</button>
+    <button class="btn-confirmar-final" onclick="confirmarItem()">✅ POR NO CARRINHO</button>
+</div>
+
+<div class="container">
+    <!-- LANCHES -->
+    <div id="lanches">
+        <div class="produto" data-categoria="lanche">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=500">
+            <h2>X-Burger</h2>
+            <p>R$ 15.00</p>
+            <input type="text" class="obs" placeholder="Alguma observação?">
+            <button class="btn-selecionar" onclick="selecionarParaEspera(this)">Escolher este</button>
+        </div>
+        <div class="produto" data-categoria="lanche">
+            <img src="https://images.unsplash.com/photo-1606755456206-b25206cde27e?w=500">
+            <h2>Bauru</h2>
+            <p>R$ 14.00</p>
+            <input type="text" class="obs" placeholder="Alguma observação?">
+            <button class="btn-selecionar" onclick="selecionarParaEspera(this)">Escolher este</button>
+        </div>
+    </div>
+
+    <!-- BEBIDAS -->
+    <div id="bebidas" style="display:none">
+        <div class="produto" data-categoria="bebida">
+            <img src="https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=500">
+            <h2>Coca-Cola</h2>
+            <p>R$ 8.00</p>
+            <input type="text" class="obs" placeholder="Gelo e limão?">
+            <button class="btn-selecionar" onclick="selecionarParaEspera(this)">Escolher esta</button>
+        </div>
+    </div>
+
+    <!-- EXTRAS -->
+    <div id="extras" style="display:none">
+        <h2>Turbine seu lanche:</h2>
+        <label><input type="checkbox" class="extra-item" value="Queijo" data-preco="2"> Queijo (+R$ 2)</label>
+        <label><input type="checkbox" class="extra-item" value="Bacon" data-preco="3"> Bacon (+R$ 3)</label>
+        <label><input type="checkbox" class="extra-item" value="Ovo" data-preco="2"> Ovo (+R$ 2)</label>
+        <br>
+        <button onclick="confirmarItem()" style="background:#25D366; color:white; padding:15px; width:100%; border:none; border-radius:8px; font-weight:bold;">TUDO PRONTO! ADICIONAR</button>
+    </div>
+</div>
+
+<div id="carrinho">
+    <ul id="lista"></ul>
+    <p><strong>Total: R$ <span id="valor-total">0.00</span></strong></p>
+    <button id="finalizar" onclick="finalizarNoWhats()">📲 Pedir no WhatsApp</button>
+</div>
+
+<script>
+    // --- MESA ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const numeroMesa = urlParams.get('mesa') || "Não informada";
+
+    window.onload = function() {
+        if(numeroMesa !== "Não informada") {
+            document.getElementById("info-mesa").innerHTML = "📍 <b>Mesa: " + numeroMesa + "</b>";
+        }
+    };
+
+    // --- CARRINHO ---
+    let carrinho = [];
+    let totalGeral = 0;
+    let itemPendente = null;
+
+    function mostrar(id) {
+        document.getElementById("lanches").style.display = "none";
+        document.getElementById("bebidas").style.display = "none";
+        document.getElementById("extras").style.display = "none";
+        document.getElementById(id).style.display = "block";
+    }
+
+    // Lógica para segurar o item antes de ir para o carrinho
+    function selecionarParaEspera(botao) {
+        const card = botao.parentElement;
+        const nome = card.querySelector("h2").innerText;
+        const preco = parseFloat(card.querySelector("p").innerText.replace("R$", ""));
+        const obs = card.querySelector(".obs").value;
+        const categoria = card.getAttribute("data-categoria");
+
+        itemPendente = { nome, preco, obs, categoria };
+
+        document.querySelectorAll('.produto').forEach(p => p.classList.remove('selecionado'));
+        card.classList.add('selecionado');
+
+        document.getElementById("area-confirmacao").style.display = "block";
+        document.getElementById("txt-pendente").innerHTML = "🥪 <b>" + nome + "</b> selecionado!";
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function confirmarItem() {
+        if(!itemPendente) return;
+
+        let extrasNomes = [];
+        let valorExtras = 0;
+
+        // Só processa extras se for LANCHE
+        if(itemPendente.categoria === "lanche") {
+            const checkboxes = document.querySelectorAll(".extra-item:checked");
+            checkboxes.forEach(item => {
+                extrasNomes.push(item.value);
+                valorExtras += parseFloat(item.getAttribute("data-preco"));
+                item.checked = false; 
+            });
+        } else {
+            // Se for bebida, garante que nenhum extra marcado por erro entre
+            document.querySelectorAll(".extra-item").forEach(i => i.checked = false);
+        }
+
+        let precoFinal = itemPendente.preco + valorExtras;
+        let desc = itemPendente.nome;
+        
+        if(extrasNomes.length > 0) desc += " + " + extrasNomes.join(", ");
+        if(itemPendente.obs) desc += " (" + itemPendente.obs + ")";
+
+        carrinho.push({ nome: desc, preco: precoFinal });
+        totalGeral += precoFinal;
+
+        // Reset
+        itemPendente = null;
+        document.getElementById("area-confirmacao").style.display = "none";
+        document.querySelectorAll('.produto').forEach(p => {
+            p.classList.remove('selecionado');
+            let campo = p.querySelector('.obs');
+            if(campo) campo.value = "";
+        });
+
+        atualizarTela();
+        mostrar('lanches');
+    }
+
+    function atualizarTela() {
+        const listaUI = document.getElementById("lista");
+        listaUI.innerHTML = "";
+        carrinho.forEach(item => {
+            const li = document.createElement("li");
+            li.innerText = "• " + item.nome + " - R$ " + item.preco.toFixed(2);
+            listaUI.appendChild(li);
+        });
+        document.getElementById("valor-total").innerText = totalGeral.toFixed(2);
+    }
+
+    function finalizarNoWhats() {
+        if(carrinho.length === 0) return alert("Carrinho vazio!");
+        const fone = "53999816127";
+        let msg = "*PEDIDO DA MESA: " + numeroMesa + "*\n";
+        msg += "------------------------------\n\n";
+        carrinho.forEach(i => msg += i.nome + " - R$ " + i.preco.toFixed(2) + "\n");
+        msg += "\n*Total: R$ " + totalGeral.toFixed(2) + "*";
+        window.open("https://wa.me/" + fone + "?text=" + encodeURIComponent(msg));
+    }
+</script>
+
+</body>
+</html>
